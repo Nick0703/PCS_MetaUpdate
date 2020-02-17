@@ -1,6 +1,10 @@
 # PCS_DBUpdate
 Do you even PCS bro?
 
+Requirements
+---------------------------------
+- Python 3.0
+
 To-do list
 ---------------------------------
 - [ ] Add a trailing "/" if the user didn't add it their path
