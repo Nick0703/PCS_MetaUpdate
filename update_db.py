@@ -1,3 +1,4 @@
+import shutil
 import pathlib
 import sqlite3
 import sys
@@ -66,3 +67,8 @@ if runSQL:
     
     # Close the connection
     connection.close()
+
+# Make sure that the db for the normal plex install has the proper
+# ownership
+if plexInstall.exists():
+    shutil.chown(plexInstall, user="plex", group="plex")
