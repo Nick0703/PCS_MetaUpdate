@@ -1,5 +1,6 @@
-import shutil
+import os
 import pathlib
+import shutil
 import sqlite3
 import sys
 
@@ -48,6 +49,11 @@ ask_media_path()
 # Confirm with the user if the path is correct
 while not confirmation():
     ask_media_path()
+
+# Check the media path and make sure it ends with "/"
+correct_path = media_path.endswith('/')
+if not correct_path:
+    media_path = media_path + "/"
 
 # If the user answered yes for the correct path
 if runSQL:
