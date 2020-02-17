@@ -1,5 +1,6 @@
 import pathlib
 import sqlite3
+import sys
 
 def confirmation():
     print("The path is: " + media_path)
@@ -25,13 +26,19 @@ def ask_media_path():
     media_path = usr_input
 
 # DB locations
-cbInstall = pathlib.Path("/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db")
+pbzInstall = pathlib.Path("/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db")
 plexInstall = pathlib.Path("/var/lib/plexmediaserver/Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db")
+cbInstall = pathlib.Path("/opt/plex/Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db")
 
-# Check if whether user installed Plex with Cloudbox or did a normal install
-if cbInstall.exists ():
+# Check if whether user installed Plex with Cloudbox, pgblitz or did a normal install
+if pbzInstall.exists():
+    connection = sqlite3.connect(pbzInstall)
+elif cbInstall.exists():
     connection = sqlite3.connect(cbInstall)
 else:
+    if os.geteuid() != 0:
+        print("Error! Please run the script as sudo")
+        sys.exit()
     connection = sqlite3.connect(plexInstall)
 
 # Ask for the media path
@@ -46,10 +53,6 @@ if runSQL:
     cursor = connection.cursor()
 
     sql_command = """UPDATE section_locations SET root_path= replace(root_path, "/mnt/unionfs/Media/", "{}") where root_path like "%/mnt/unionfs/Media/%";""".format(media_path)
-    cursor.execute(sql_command)
-
-    # I don't think this is needed by the way
-    sql_command = """UPDATE metadata_items SET guid= replace(guid, "file:///mnt/unionfs/Media/", "file://{}") where guid like "%file:///mnt/unionfs/Media/%";""".format(media_path)
     cursor.execute(sql_command)
 
     sql_command = """UPDATE media_streams SET url= replace(url, "file:///mnt/unionfs/Media/", "file://{}") where url like "%file:///mnt/unionfs/Media/%";""".format(media_path)
