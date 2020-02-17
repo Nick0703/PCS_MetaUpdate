@@ -5,6 +5,10 @@ Requirements
 ---------------------------------
 - Python 3.0
 
+How to use it
+---------------------------------
+- `python3 update_db.py`
+
 To-do list
 ---------------------------------
 - [ ] Add a trailing "/" if the user didn't add it their path
