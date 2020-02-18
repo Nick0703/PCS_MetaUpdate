@@ -3,6 +3,7 @@ import pathlib
 import shutil
 import sqlite3
 import sys
+import tarfile
 
 def confirmation():
     print("The path is: " + media_path)
@@ -22,38 +23,71 @@ def confirmation():
         print(error)
         return confirmation()
 
+def extract_confirm():
+    check = str(input("Do you want to extract the tar file? (Y/N): ")).lower().strip()
+    try:
+        if check[0] == 'y':
+            return True
+        elif check[0] == 'n':
+            return False
+        else:
+            print('Invalid Input')
+            return confirmation()
+    except Exception as error:
+        print("Please enter valid inputs")
+        print(error)
+        return confirmation()
+
 def ask_media_path():
     global media_path
     usr_input = input("Enter the path of your media location: ")
     media_path = usr_input
 
-# Installation count
+def extract_tar(str):
+    tar = tarfile.open("plex.tar")
+    tar.extractall(str)
+    tar.close
+
+# Installation count/type
 installCount = 0
+installType = ""
 
 # Installation and DB locations
-pbzInstall = pathlib.Path("/opt/appdata/plex/database/")
+pgbInstall = pathlib.Path("/opt/appdata/plex/database/")
 plexInstall = pathlib.Path("/var/lib/plexmediaserver/")
 cbInstall = pathlib.Path("/opt/plex/")
 plexdb = ("Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db")
 
 # Check if whether user installed Plex with Cloudbox, pgblitz or did a normal install
-if pbzInstall.exists():
+if pgbInstall.exists():
     installCount = installCount + 1
-    connection = sqlite3.connect(pbzInstall.joinpath(plexdb))
+    installType = "pgblitz"
 elif cbInstall.exists():
     installCount = installCount + 1
-    connection = sqlite3.connect(cbInstall.joinpath(plexdb))
+    installType = "cloudbox"
 else:
     installCount = installCount + 1
     if os.geteuid() != 0:
         print("Error! Please run the script as sudo")
         sys.exit()
-    connection = sqlite3.connect(plexInstall.joinpath(plexdb))
 
 # Exit the program if we have more than 1 installation type
 if installCount > 1:
     print("Error! You have more than 1 installation, please remove the old ones")
     sys.exit()
+else:
+    if installType == "pgblitz": # PGBlitz Installation
+        if extract_confirm():
+            extract_tar(pgbInstall)
+        connection = sqlite3.connect(pgbInstall.joinpath(plexdb))
+    elif installType == "cloudbox": # Cloudbox Installation
+        if extract_confirm():
+            extract_tar(cbInstall)
+        connection = sqlite3.connect(cbInstall.joinpath(plexdb))
+    else: # Normal Plex Installation
+        if extract_confirm():
+            extract_tar(plexInstall)
+        connection = sqlite3.connect(plexInstall.joinpath(plexdb))
 
 # Ask for the media path
 ask_media_path()
@@ -89,4 +123,4 @@ if runSQL:
 # Make sure that the db for the normal plex install has the proper
 # ownership
 if plexInstall.exists():
-    shutil.chown(plexInstall, user="plex", group="plex")
+    shutil.chown(plexInstall.joinpath(plexdb), user="plex", group="plex")
