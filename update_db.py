@@ -27,21 +27,33 @@ def ask_media_path():
     usr_input = input("Enter the path of your media location: ")
     media_path = usr_input
 
-# DB locations
-pbzInstall = pathlib.Path("/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db")
-plexInstall = pathlib.Path("/var/lib/plexmediaserver/Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db")
-cbInstall = pathlib.Path("/opt/plex/Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db")
+# Installation count
+installCount = 0
+
+# Installation and DB locations
+pbzInstall = pathlib.Path("/opt/appdata/plex/database/")
+plexInstall = pathlib.Path("/var/lib/plexmediaserver/")
+cbInstall = pathlib.Path("/opt/plex/")
+plexdb = ("Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db")
 
 # Check if whether user installed Plex with Cloudbox, pgblitz or did a normal install
 if pbzInstall.exists():
-    connection = sqlite3.connect(pbzInstall)
+    installCount = installCount + 1
+    connection = sqlite3.connect(pbzInstall.joinpath(plexdb))
 elif cbInstall.exists():
-    connection = sqlite3.connect(cbInstall)
+    installCount = installCount + 1
+    connection = sqlite3.connect(cbInstall.joinpath(plexdb))
 else:
+    installCount = installCount + 1
     if os.geteuid() != 0:
         print("Error! Please run the script as sudo")
         sys.exit()
-    connection = sqlite3.connect(plexInstall)
+    connection = sqlite3.connect(plexInstall.joinpath(plexdb))
+
+# Exit the program if we have more than 1 installation type
+if installCount > 1:
+    print("Error! You have more than 1 installation, please remove the old ones")
+    sys.exit()
 
 # Ask for the media path
 ask_media_path()
