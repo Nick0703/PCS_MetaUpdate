@@ -44,9 +44,18 @@ def ask_media_path():
     media_path = usr_input
 
 def extract_tar(str):
-    tar = tarfile.open("plex.tar")
-    tar.extractall(str)
-    tar.close
+    if metaTar.exists():
+        print("Extracting the tar file, this might take a while...")
+        def members(tf):
+            l = len("database/")
+            for member in tf.getmembers():
+                if member.path.startswith("database/"):
+                    member.path = member.path[l:]
+                    yield member
+
+        with tarfile.open("plex.tar") as tar:
+            tar.extractall(str, members=members(tar))
+            tar.close
 
 # Installation count/type
 installCount = 0
@@ -57,6 +66,7 @@ pgbInstall = pathlib.Path("/opt/appdata/plex/database/")
 plexInstall = pathlib.Path("/var/lib/plexmediaserver/")
 cbInstall = pathlib.Path("/opt/plex/")
 plexdb = ("Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db")
+metaTar = pathlib.Path("plex.tar")
 
 # Check if whether user installed Plex with Cloudbox, pgblitz or did a normal install
 if pgbInstall.exists():
