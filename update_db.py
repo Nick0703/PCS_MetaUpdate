@@ -7,7 +7,7 @@ import tarfile
 
 def confirmation():
     print("The path is: " + media_path)
-    check = str(input("Is the path correct? (Y/N): ")).lower().strip()
+    check = str(input("\nIs the path correct? (Y/N): ")).lower().strip()
     try:
         if check[0] == 'y':
             global runSQL
@@ -40,12 +40,12 @@ def extract_confirm():
 
 def ask_media_path():
     global media_path
-    usr_input = input("Enter the path of your media location: ")
+    usr_input = input("\nEnter the path of your media location: ")
     media_path = usr_input
 
 def extract_tar(str):
     if metaTar.exists():
-        print("Extracting the tar file, this might take a while...")
+        print("\nExtracting the tar file, this might take a while...")
         def members(tf):
             l = len("database/")
             for member in tf.getmembers():
