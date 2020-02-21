@@ -1,5 +1,5 @@
 # PCS_DBUpdate
-Do you even PCS bro?
+Python script used to update plex database when using the tar file from PCS.
 
 Requirements
 ---------------------------------
@@ -8,6 +8,7 @@ Requirements
 How to use it
 ---------------------------------
 - `python3 update_db.py`
+- If you installed PMS through dpkg, then run it as sudo `sudo python3 update_db.py`
 
 To-do list
 ---------------------------------
