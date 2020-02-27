@@ -5,26 +5,21 @@ import sqlite3
 import sys
 import tarfile
 
-def confirmation():
-    print("The path is: " + media_path)
-    check = str(input("\nIs the path correct? (Y/N): ")).lower().strip()
-    try:
-        if check[0] == 'y':
-            global runSQL
-            runSQL = True
-            return True
-        elif check[0] == 'n':
-            return False
-        else:
-            print('Invalid Input')
-            return confirmation()
-    except Exception as error:
-        print("Please enter valid inputs")
-        print(error)
-        return confirmation()
+# Installation count/type
+installCount = 0
+installType = ""
 
-def extract_confirm():
-    check = str(input("Do you want to extract the tar file? (Y/N): ")).lower().strip()
+# Installation and DB locations
+pgbInstall = pathlib.Path("/opt/appdata/plex/database/")
+plexInstall = pathlib.Path("/var/lib/plexmediaserver/")
+cbInstall = pathlib.Path("/opt/plex/")
+plexdb = ("Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db")
+metaTar = pathlib.Path("plex.tar")
+extMsg = "Do you want to extract the tar file? (Y/N): "
+pathMsg = "\nIs the path correct? (Y/N): "
+
+def confirmation(msg):
+    check = str(input(msg)).lower().strip()
     try:
         if check[0] == 'y':
             return True
@@ -57,17 +52,6 @@ def extract_tar(str):
             tar.extractall(str, members=members(tar))
             tar.close
 
-# Installation count/type
-installCount = 0
-installType = ""
-
-# Installation and DB locations
-pgbInstall = pathlib.Path("/opt/appdata/plex/database/")
-plexInstall = pathlib.Path("/var/lib/plexmediaserver/")
-cbInstall = pathlib.Path("/opt/plex/")
-plexdb = ("Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db")
-metaTar = pathlib.Path("plex.tar")
-
 # Check if whether user installed Plex with Cloudbox, pgblitz or did a normal install
 if pgbInstall.exists():
     installCount = installCount + 1
@@ -87,15 +71,15 @@ if installCount > 1:
     sys.exit()
 else:
     if installType == "pgblitz": # PGBlitz Installation
-        if extract_confirm():
+        if confirmation(extMsg):
             extract_tar(pgbInstall)
         connection = sqlite3.connect(pgbInstall.joinpath(plexdb))
     elif installType == "cloudbox": # Cloudbox Installation
-        if extract_confirm():
+        if confirmation(extMsg):
             extract_tar(cbInstall)
         connection = sqlite3.connect(cbInstall.joinpath(plexdb))
     else: # Normal Plex Installation
-        if extract_confirm():
+        if confirmation(extMsg):
             extract_tar(plexInstall)
         connection = sqlite3.connect(plexInstall.joinpath(plexdb))
 
@@ -103,8 +87,10 @@ else:
 ask_media_path()
 
 # Confirm with the user if the path is correct
-while not confirmation():
+print("The path is: " + media_path)
+while not confirmation(pathMsg):
     ask_media_path()
+runSQL = True
 
 # Check the media path and make sure it ends with "/"
 correct_path = media_path.endswith('/')
