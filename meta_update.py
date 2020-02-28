@@ -28,10 +28,10 @@ def confirmation(msg):
         elif check[0] == 'n':
             return False
         else:
-            print('Invalid Input')
+            print("Invalid Input.")
             return confirmation()
     except Exception as error:
-        print("Please enter valid inputs")
+        print("Please enter valid inputs.")
         print(error)
         return confirmation()
 
@@ -53,6 +53,10 @@ def extract_tar(str):
         with tarfile.open("plex.tar") as tar:
             tar.extractall(str, members=members(tar))
             tar.close
+    else:
+        print("\nError! Tar file not found.")
+        print("Please make sure that the plex.tar is in the same directory.")
+        sys.exit()
 
 # Check if whether user installed Plex with Cloudbox, pgblitz or did a normal install
 if pgbInstall.exists():
@@ -64,12 +68,12 @@ elif cbInstall.exists():
 else:
     installCount = installCount + 1
     if os.geteuid() != 0:
-        print("Error! Please run the script as sudo")
+        print("Error! Please run the script as sudo.")
         sys.exit()
 
 # Exit the program if we have more than 1 installation type
 if installCount > 1:
-    print("Error! You have more than 1 installation, please remove the old ones")
+    print("Error! You have more than 1 installation, please remove the old ones.")
     sys.exit()
 else:
     if installType == "pgblitz": # PGBlitz Installation
