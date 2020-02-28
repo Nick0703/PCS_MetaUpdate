@@ -29,11 +29,11 @@ def confirmation(msg):
             return False
         else:
             print("Invalid Input.")
-            return confirmation()
+            return confirmation(msg)
     except Exception as error:
         print("Please enter valid inputs.")
-        print(error)
-        return confirmation()
+        #print(error)
+        return confirmation(msg)
 
 def ask_media_path():
     global media_path
