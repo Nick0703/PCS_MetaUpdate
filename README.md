@@ -4,6 +4,8 @@ Python script used to update plex database when using the tar file from PCS.
 Requirements
 ---------------------------------
 - Python 3.0
+- plex.tar (If you want to use the backed-up metadata)
+	- Make sure that the file is in the same directory.
 
 How to use it
 ---------------------------------
