@@ -3,14 +3,27 @@ import pathlib
 import shutil
 import sqlite3
 import sys
+import tarfile
 
-def confirmation():
-    print("The path is: " + media_path)
-    check = str(input("Is the path correct? (Y/N): ")).lower().strip()
+# Installation count/type
+installCount = 0
+installType = ""
+
+# Installation and DB locations
+pgbInstall = pathlib.Path("/opt/appdata/plex/database/")
+plexInstall = pathlib.Path("/var/lib/plexmediaserver/")
+cbInstall = pathlib.Path("/opt/plex/")
+plexdb = ("Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db")
+plexPref = ("Library/Application Support/Plex Media Server/Preferences.xml")
+plexPrefBack = ("Library/Application Support/Plex Media Server/Preferences.xml.back")
+metaTar = pathlib.Path("plex.tar")
+extMsg = "Do you want to extract the tar file? (Y/N): "
+pathMsg = "\nIs the path correct? (Y/N): "
+
+def confirmation(msg):
+    check = str(input(msg)).lower().strip()
     try:
         if check[0] == 'y':
-            global runSQL
-            runSQL = True
             return True
         elif check[0] == 'n':
             return False
@@ -24,43 +37,89 @@ def confirmation():
 
 def ask_media_path():
     global media_path
-    usr_input = input("Enter the path of your media location: ")
+    usr_input = input("\nEnter the path of your media location: ")
     media_path = usr_input
 
-# Installation count
-installCount = 0
+def extract_tar(str):
+    if metaTar.exists():
+        print("\nExtracting the tar file, this might take a while...")
+        def members(tf):
+            l = len("database/")
+            for member in tf.getmembers():
+                if member.path.startswith("database/"):
+                    member.path = member.path[l:]
+                    yield member
 
-# Installation and DB locations
-pbzInstall = pathlib.Path("/opt/appdata/plex/database/")
-plexInstall = pathlib.Path("/var/lib/plexmediaserver/")
-cbInstall = pathlib.Path("/opt/plex/")
-plexdb = ("Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db")
+        with tarfile.open("plex.tar") as tar:
+            tar.extractall(str, members=members(tar))
+            tar.close
 
 # Check if whether user installed Plex with Cloudbox, pgblitz or did a normal install
-if pbzInstall.exists():
+if pgbInstall.exists():
     installCount = installCount + 1
-    connection = sqlite3.connect(pbzInstall.joinpath(plexdb))
+    installType = "pgblitz"
 elif cbInstall.exists():
     installCount = installCount + 1
-    connection = sqlite3.connect(cbInstall.joinpath(plexdb))
+    installType = "cloudbox"
 else:
     installCount = installCount + 1
     if os.geteuid() != 0:
         print("Error! Please run the script as sudo")
         sys.exit()
-    connection = sqlite3.connect(plexInstall.joinpath(plexdb))
 
 # Exit the program if we have more than 1 installation type
 if installCount > 1:
     print("Error! You have more than 1 installation, please remove the old ones")
     sys.exit()
+else:
+    if installType == "pgblitz": # PGBlitz Installation
+        if confirmation(extMsg):
+            # Rename the old Preferences.xml
+            if pgbInstall.joinpath(plexPref).exists():
+                os.rename(pgbInstall.joinpath(plexPref), pgbInstall.joinpath(plexPrefBack))
+            
+            # Extract the tar file
+            extract_tar(pgbInstall)
+            
+            # Rename the Preferences.xml back 
+            os.rename(pgbInstall.joinpath(plexPrefBack), pgbInstall.joinpath(plexPref))
+        
+        connection = sqlite3.connect(pgbInstall.joinpath(plexdb))
+    elif installType == "cloudbox": # Cloudbox Installation
+        if confirmation(extMsg):
+            # Rename the old Preferences.xml
+            if cbInstall.joinpath(plexPref).exists():
+                os.rename(cbInstall.joinpath(plexPref), cbInstall.joinpath(plexPrefBack))
+            
+            # Extract the tar file
+            extract_tar(cbInstall)
+            
+            # Rename the Preferences.xml back 
+            os.rename(cbInstall.joinpath(plexPrefBack), cbInstall.joinpath(plexPref))
+        
+        connection = sqlite3.connect(cbInstall.joinpath(plexdb))
+    else: # Normal Plex Installation
+        if confirmation(extMsg):
+            # Rename the old Preferences.xml
+            if plexInstall.joinpath(plexPref).exists():
+                os.rename(plexInstall.joinpath(plexPref), plexInstall.joinpath(plexPrefBack))
+            
+            # Extract the tar file
+            extract_tar(plexInstall)
+            
+            # Rename the Preferences.xml back 
+            os.rename(plexInstall.joinpath(plexPrefBack), plexInstall.joinpath(plexPref))
+        
+        connection = sqlite3.connect(plexInstall.joinpath(plexdb))
 
 # Ask for the media path
 ask_media_path()
 
 # Confirm with the user if the path is correct
-while not confirmation():
+print("The path is: " + media_path)
+while not confirmation(pathMsg):
     ask_media_path()
+runSQL = True
 
 # Check the media path and make sure it ends with "/"
 correct_path = media_path.endswith('/')
@@ -89,4 +148,4 @@ if runSQL:
 # Make sure that the db for the normal plex install has the proper
 # ownership
 if plexInstall.exists():
-    shutil.chown(plexInstall, user="plex", group="plex")
+    shutil.chown(plexInstall.joinpath(plexdb), user="plex", group="plex")
