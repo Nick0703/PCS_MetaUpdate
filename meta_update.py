@@ -44,17 +44,19 @@ def ask_media_path():
 
 def extract_tar(str):
     if metaTar.exists():
-        print("\nExtracting the tar file, this might take a while...")
-        def members(tf):
-            l = len("database/")
-            for member in tf.getmembers():
-                if member.path.startswith("database/"):
-                    member.path = member.path[l:]
-                    yield member
+        print("\nNot extracting the tar file. Please manually extract it for now.")
+        print("Working on a fix for it.")
+        # print("\nExtracting the tar file, this might take a while...")
+        # def members(tf):
+            # l = len("database/")
+            # for member in tf.getmembers():
+                # if member.path.startswith("database/"):
+                    # member.path = member.path[l:]
+                    # yield member
 
-        with tarfile.open("plex.tar") as tar:
-            tar.extractall(str, members=members(tar))
-            tar.close
+        # with tarfile.open("plex.tar") as tar:
+            # tar.extractall(str, members=members(tar))
+            # tar.close
     else:
         print("\nError! Tar file not found.")
         print("Please make sure that the plex.tar is in the same directory.")
@@ -83,39 +85,39 @@ else:
             # Rename the old Preferences.xml
             if pgbInstall.joinpath(plexPref).exists():
                 os.rename(pgbInstall.joinpath(plexPref), pgbInstall.joinpath(plexPrefBack))
-            
+
             # Extract the tar file
             extract_tar(pgbInstall)
-            
+
             # Rename the Preferences.xml back 
             os.rename(pgbInstall.joinpath(plexPrefBack), pgbInstall.joinpath(plexPref))
-        
+
         connection = sqlite3.connect(pgbInstall.joinpath(plexdb))
     elif installType == "cloudbox": # Cloudbox Installation
         if confirmation(extMsg):
             # Rename the old Preferences.xml
             if cbInstall.joinpath(plexPref).exists():
                 os.rename(cbInstall.joinpath(plexPref), cbInstall.joinpath(plexPrefBack))
-            
+
             # Extract the tar file
             extract_tar(cbInstall)
-            
+
             # Rename the Preferences.xml back 
             os.rename(cbInstall.joinpath(plexPrefBack), cbInstall.joinpath(plexPref))
-        
+
         connection = sqlite3.connect(cbInstall.joinpath(plexdb))
     else: # Normal Plex Installation
         if confirmation(extMsg):
             # Rename the old Preferences.xml
             if plexInstall.joinpath(plexPref).exists():
                 os.rename(plexInstall.joinpath(plexPref), plexInstall.joinpath(plexPrefBack))
-            
+
             # Extract the tar file
             extract_tar(plexInstall)
-            
+
             # Rename the Preferences.xml back 
             os.rename(plexInstall.joinpath(plexPrefBack), plexInstall.joinpath(plexPref))
-        
+
         connection = sqlite3.connect(plexInstall.joinpath(plexdb))
 
 # Ask for the media path
@@ -147,7 +149,7 @@ if runSQL:
 
     # Commit the changes
     connection.commit()
-    
+
     # Close the connection
     connection.close()
 

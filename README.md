@@ -19,3 +19,4 @@ To-do list
 - [x] Check whether user has multiple installation paths, currently we're just assuming that they have only one
 - [x] Automatically extract the tar file and move the files over for the user
 - [x] Backup the original Preferences.xml and restore it after
+- [ ] Rework the extraction part, not working as intended. Use manual extract for now.
