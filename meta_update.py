@@ -78,8 +78,9 @@ else:
             # Extract the tar file
             extract_tar(pgbInstall)
 
-            # Rename the Preferences.xml back 
-            os.rename(pgbInstall.joinpath(plexPrefBack), pgbInstall.joinpath(plexPref))
+            # Rename the Preferences.xml back
+            if pgbInstall.joinpath(plexPrefBack).exists():
+                os.rename(pgbInstall.joinpath(plexPrefBack), pgbInstall.joinpath(plexPref))
 
         connection = sqlite3.connect(pgbInstall.joinpath(plexdb))
     elif installType == "cloudbox": # Cloudbox Installation
@@ -91,8 +92,9 @@ else:
             # Extract the tar file
             extract_tar(cbInstall)
 
-            # Rename the Preferences.xml back 
-            os.rename(cbInstall.joinpath(plexPrefBack), cbInstall.joinpath(plexPref))
+            # Rename the Preferences.xml back
+            if cbInstall.joinpath(plexPrefBack).exists():
+                os.rename(cbInstall.joinpath(plexPrefBack), cbInstall.joinpath(plexPref))
 
         connection = sqlite3.connect(cbInstall.joinpath(plexdb))
     else: # Normal Plex Installation
@@ -104,8 +106,9 @@ else:
             # Extract the tar file
             extract_tar(plexInstall)
 
-            # Rename the Preferences.xml back 
-            os.rename(plexInstall.joinpath(plexPrefBack), plexInstall.joinpath(plexPref))
+            # Rename the Preferences.xml back
+            if plexInstall.joinpath(plexPrefBack).exists():
+                os.rename(plexInstall.joinpath(plexPrefBack), plexInstall.joinpath(plexPref))
 
         connection = sqlite3.connect(plexInstall.joinpath(plexdb))
 
