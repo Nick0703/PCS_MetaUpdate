@@ -4,8 +4,8 @@ import os
 import pathlib
 import shutil
 import sqlite3
+import subprocess
 import sys
-import tarfile
 
 # Installation count/type
 installCount = 0
@@ -42,21 +42,10 @@ def ask_media_path():
     usr_input = input("\nEnter the path of your media location: ")
     media_path = usr_input
 
-def extract_tar(str):
+def extract_tar(arg):
     if metaTar.exists():
-        print("\nNot extracting the tar file. Please manually extract it for now.")
-        print("Working on a fix for it.")
-        # print("\nExtracting the tar file, this might take a while...")
-        # def members(tf):
-            # l = len("database/")
-            # for member in tf.getmembers():
-                # if member.path.startswith("database/"):
-                    # member.path = member.path[l:]
-                    # yield member
-
-        # with tarfile.open("plex.tar") as tar:
-            # tar.extractall(str, members=members(tar))
-            # tar.close
+        print("\nExtracting the tar file, this might take a while...")
+        subprocess.check_call("./extract.sh -d '%s'" % str(arg), shell=True)
     else:
         print("\nError! Tar file not found.")
         print("Please make sure that the plex.tar is in the same directory.")
