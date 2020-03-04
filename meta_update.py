@@ -51,6 +51,10 @@ def extract_tar(arg):
         print("Please make sure that the plex.tar is in the same directory.")
         sys.exit()
 
+def fix_permissions(arg):
+    print("\nFixing the permissions on the extracted files, this might take a while...")
+    subprocess.check_call("./fix-owner.sh -d '%s'" % str(arg), shell=True)
+
 # Check if whether user installed Plex with Cloudbox, pgblitz or did a normal install
 if pgbInstall.exists():
     installCount = installCount + 1
@@ -148,4 +152,4 @@ if runSQL:
 # Make sure that the db for the normal plex install has the proper
 # ownership
 if plexInstall.exists():
-    shutil.chown(plexInstall.joinpath(plexdb), user="plex", group="plex")
+    fix_permissions(plexInstall)

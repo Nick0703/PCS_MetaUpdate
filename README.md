@@ -20,4 +20,4 @@ To-do list
 - [x] Automatically extract the tar file and move the files over for the user
 - [x] Backup the original Preferences.xml and restore it after
 - [x] Rework the extraction part, not working as intended.
-- [ ] Double check the permissions after extracting the tar file
+- [x] Double check the permissions after extracting the tar file

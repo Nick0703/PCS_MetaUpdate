@@ -9,9 +9,9 @@ while getopts "d:" opt; do
    esac
 done
 
-tar -xf plex.tar --strip-components=2 -C $opt_destination
+chown -R plex:plex $opt_destination
 
 end="$(date -u +%s)"
 tmin=$(( (end-start)/60 ))
 tsec=$(( (end-start)%60 ))
-echo -e $Green"Took $tmin minutes $tsec seconds to extract the tar file."$Reset_Color
+echo -e $Green"Took $tmin minutes $tsec seconds to fix the permissions."$Reset_Color
