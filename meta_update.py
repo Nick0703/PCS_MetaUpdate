@@ -11,7 +11,7 @@ import sys
 installCount = 0
 installType = ""
 
-# Installation and DB locations
+# Installation and files/DB locations
 pgbInstall = pathlib.Path("/opt/appdata/plex/database/")
 plexInstall = pathlib.Path("/var/lib/plexmediaserver/")
 cbInstall = pathlib.Path("/opt/plex/")
@@ -21,6 +21,8 @@ plexPrefBack = ("Library/Application Support/Plex Media Server/Preferences.xml.b
 metaTar = pathlib.Path("plex.tar")
 extMsg = "Do you want to extract the tar file? (Y/N): "
 pathMsg = "\nIs the path correct? (Y/N): "
+extractScript = pathlib.Path("extract.sh")
+fixOwnerScript = pathlib.Path("fix-owner.sh")
 
 def confirmation(msg):
     check = str(input(msg)).lower().strip()
@@ -54,6 +56,12 @@ def extract_tar(arg):
 def fix_permissions(arg):
     print("\nFixing the permissions on the extracted files, this might take a while...")
     subprocess.check_call("./fix-owner.sh -d '%s'" % str(arg), shell=True)
+
+if extractScript.exists():
+    os.chmod(extractScript, 0o775)
+
+if fixOwnerScript.exists():
+    os.chmod(fixOwnerScript, 0o775)
 
 # Check if whether user installed Plex with Cloudbox, pgblitz or did a normal install
 if pgbInstall.exists():
