@@ -1,11 +1,24 @@
 #!/usr/bin/env python3
 
+import apt
 import os
 import pathlib
 import shutil
 import sqlite3
 import subprocess
 import sys
+
+# Check the python version, minimum version needs to be 3.7
+if sys.version_info < (3, 7):
+    sys.exit("You must use Python 3.7 or newer.")
+
+# Check if pv is installed
+cache = apt.Cache()
+cache.open()
+try:
+    cache["pv"].is_installed
+except Exception:
+    sys.exit("You must install pv, apt install pv.")
 
 # Installation count/type
 installCount = 0
