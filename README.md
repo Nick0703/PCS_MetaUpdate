@@ -7,6 +7,8 @@ Requirements
     - Double check your python3 version `python3 --version`, if it's less than 3.7.5, update it to the latest version.
 - plex.tar (If you want to use the backed-up metadata)
 	- Make sure that the file is in the same directory.
+- pv `apt install pv`
+    - Used to show the progress of the extraction.
 
 How to use it
 ---------------------------------
