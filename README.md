@@ -27,5 +27,5 @@ To-do list
 - [x] Backup the original Preferences.xml and restore it after
 - [x] Rework the extraction part, not working as intended.
 - [x] Double check the permissions after extracting the tar file
-- [ ] Check if the custom path exists
+- [x] Check if the custom path exists
 - [ ] Fix permissions for custom path type

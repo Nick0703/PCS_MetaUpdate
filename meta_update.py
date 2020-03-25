@@ -155,7 +155,12 @@ def make_menu():
             print("The path is: " + usrPath)
             while not confirmation(pathMsg):
                 usrPath = input("\nEnter the path of the custom installation: ")
-            customInstall = usrPath
+
+            if not pathlib.Path(customInstall).exists():
+                sys.exit("\nPath doesn't exist, please double check it!\n")
+            else:
+                customInstall = usrPath
+
             installType = "custom"
         
         elif options == "5":
