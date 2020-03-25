@@ -1,19 +1,23 @@
 # PCS_MetaUpdate
 Python script used to update plex database when using the tar file from PCS.
 
+Download
+---------------------------------
+- To download the latest release [click here](https://github.com/Nick0703/PCS_MetaUpdate/releases)
+
 Requirements
 ---------------------------------
 - Python 3.7.5 or newer
     - Double check your python3 version `python3 --version`, if it's less than 3.7.5, update it to the latest version.
 - plex.tar (If you want to use the backed-up metadata)
-	- Make sure that the file is in the same directory.
+	- Make sure that the file is in the same directory (Script).
 - pv `apt install pv`
     - Used to show the progress of the extraction.
 
 How to use it
 ---------------------------------
 - `python3 meta_update.py`
-- If you installed PMS through dpkg, then run it as sudo `sudo python3 meta_update.py`
+- If you installed PMS through dpkg (Standard Installation), then run it as sudo `sudo python3 meta_update.py`
 
 To-do list
 ---------------------------------
