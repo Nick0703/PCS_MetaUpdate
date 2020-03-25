@@ -133,7 +133,7 @@ def make_menu():
     while options == "0":
         print("Please select your installation type:\n")
         print(" 1. PGBlitz\n 2. CloudBox\n 3. Plex Media Server .deb file (Standard Install)\n 4. Custom path (Docker Install)\n 5. Exit\n")
-        options = input("Please select one of the options (1-5): ")
+        options = input("Option (1-5): ")
         
         if options == "1":
             if pgbInstall.exists():
