@@ -59,9 +59,10 @@ def confirmation(msg):
         return confirmation(msg)
 
 # Fix the ownership of the files
-def fix_permissions(arg):
-    print("\nFixing the permissions on the extracted files, this might take a while...")
-    subprocess.check_call("./fix-owner.sh -d '%s'" % str(arg), shell=True)
+def fix_ownership(arg, arg2, arg3):
+    print("\nFixing the ownership on the extracted files, this might take a while...")
+    cmd = "./fix-owner.sh -d {} -u {} -g {}".format(arg, arg2, arg3)
+    subprocess.check_call(cmd, shell=True)
 
 # Make sure the helper scripts are executable
 def make_executable():
@@ -91,7 +92,7 @@ def extract_tar(arg):
         os.rename(arg.joinpath(plexPrefBack), arg.joinpath(plexPref))
 
 # Execute Order 66
-def update_database():
+def update_database(arg):
     # Ask for the mount path
     mount_path = input("\nEnter the path of your mount location: ")
 
@@ -106,6 +107,8 @@ def update_database():
         mount_path = mount_path + "/"
 
     print("\nUpdating the database to reflect the new mount path.")
+    connection = sqlite3.connect(arg.joinpath(plexdb))
+    
     cursor = connection.cursor()
 
     sql_command = """UPDATE section_locations SET root_path= replace(root_path, "/mnt/unionfs/Media/", "{}") where root_path like "%/mnt/unionfs/Media/%";""".format(mount_path)
@@ -123,7 +126,7 @@ def update_database():
     # Close the connection
     connection.close()
     
-    print("Database is updated.\n")
+    print("Database is updated.")
 
 # Menu
 def make_menu():
@@ -147,16 +150,21 @@ def make_menu():
             if os.geteuid() != 0:
                 print("Error! Please run the script as sudo.")
                 sys.exit()
+            
             if plexInstall.exists():
                 installType = "dpkg"
         
         elif options == "4":
+            if os.geteuid() != 0:
+                print("Error! Please run the script as sudo.")
+                sys.exit()
+            
             usrPath = input("\nPlease enter the path of the custom installation: ")
             print("The path is: " + usrPath)
             while not confirmation(pathMsg):
                 usrPath = input("\nEnter the path of the custom installation: ")
 
-            if not pathlib.Path(customInstall).exists():
+            if not pathlib.Path(usrPath).exists():
                 sys.exit("\nPath doesn't exist, please double check it!\n")
             else:
                 customInstall = usrPath
@@ -175,42 +183,49 @@ def make_menu():
 def main():
     # Make the menu
     make_menu()
-    
-    global connection
+
     if installType == "pgblitz": # PGBlitz Installation
         if confirmation(extMsg):
             extract_tar(pgbInstall)
 
-        connection = sqlite3.connect(pgbInstall.joinpath(plexdb))
+        # Execute Order 66
+        update_database(pgbInstall)
     
     elif installType == "cloudbox": # Cloudbox Installation
         if confirmation(extMsg):
             extract_tar(cbInstall)
 
-        connection = sqlite3.connect(cbInstall.joinpath(plexdb))
+        # Execute Order 66
+        update_database(cbInstall)
     
     elif installType == "dpkg": # Normal Plex Installation
         if confirmation(extMsg):
             extract_tar(plexInstall)
 
-        connection = sqlite3.connect(plexInstall.joinpath(plexdb))
+        # Execute Order 66
+        update_database(plexInstall)
+
+        # Fix the ownership
+        fix_ownership(plexInstall, "plex", "plex")
     
     elif installType == "custom": # Plex Docker Installation
         if confirmation(extMsg):
             extract_tar(pathlib.Path(customInstall))
         
-        connection = sqlite3.connect(pathlib.Path(customInstall).joinpath(plexdb))
+        # Execute Order 66
+        update_database(pathlib.Path(customInstall))
+
+        # Custom user:group
+        print("\nSetting custom ownership for the files, e.g chown user:user")
+        perm_user = input("\nEnter the user name: ")
+        perm_group = input("Enter the group name: ")
+        
+        # Fixing the ownership
+        fix_ownership(customInstall, perm_user, perm_group)
     
     else:
         sys.exit("\nWell then something went wrong here... Exiting")
 
-    # Execute Order 66
-    update_database()
-    
-    # Make sure that the db for the normal plex install has the proper
-    # ownership
-    #if plexInstall.exists():
-    #    fix_permissions(plexInstall)
-
 # Main program
 main()
+print("\nDone. Enjoy!")

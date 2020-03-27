@@ -3,15 +3,17 @@ start="$(date -u +%s)"
 Reset_Color='\033[0m'
 Green='\033[0;32m'
 
-while getopts "d:" opt; do
+while getopts "d:u:g:" opt; do
    case "$opt" in
       d ) opt_destination="$OPTARG" ;;
+      u ) opt_user="$OPTARG" ;;
+      g ) opt_group="$OPTARG" ;;
    esac
 done
 
-chown -R plex:plex $opt_destination
+find $opt_destination ! -user $opt_user -exec chown $opt_user:$opt_group {} \;
 
 end="$(date -u +%s)"
 tmin=$(( (end-start)/60 ))
 tsec=$(( (end-start)%60 ))
-echo -e $Green"Took $tmin minutes $tsec seconds to fix the permissions."$Reset_Color
+echo -e $Green"Took $tmin minutes $tsec seconds to fix the ownerships."$Reset_Color
