@@ -11,7 +11,8 @@ while getopts "d:u:g:" opt; do
    esac
 done
 
-find $opt_destination ! -user $opt_user -exec chown $opt_user:$opt_group {} \;
+#find $opt_destination ! -user $opt_user -exec chown $opt_user:$opt_group {} \;
+chown -R $opt_user:$opt_group $opt_destination
 
 end="$(date -u +%s)"
 tmin=$(( (end-start)/60 ))
