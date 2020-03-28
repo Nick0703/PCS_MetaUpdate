@@ -7,17 +7,18 @@ Download
 
 Requirements
 ---------------------------------
-- Python 3.7.5 or newer
-    - Double check your python3 version `python3 --version`, if it's less than 3.7.5, update it to the latest version.
+- Python 3.7 or newer
+    - Double check your python3 version `python3 --version`, if it's less than 3.7, update it to the latest version.
+    - python3-apt is also required.
 - plex.tar (If you want to use the backed-up metadata)
-	- Make sure that the file is in the same directory (Script).
+	- Make sure that the file is in the same directory as the script.
 - pv `apt install pv`
     - Used to show the progress of the extraction.
 
 How to use it
 ---------------------------------
 - `python3 meta_update.py`
-- If you installed PMS through dpkg (Standard Installation), then run it as sudo `sudo python3 meta_update.py`
+- If you installed PMS through dpkg (Standard Installation) or using a docker installation, then run it as sudo `sudo python3 meta_update.py`
 
 To-do list
 ---------------------------------
@@ -28,4 +29,4 @@ To-do list
 - [x] Rework the extraction part, not working as intended.
 - [x] Double check the permissions after extracting the tar file
 - [x] Check if the custom path exists
-- [ ] Fix permissions for custom path type
+- [x] Fix permissions for custom path type

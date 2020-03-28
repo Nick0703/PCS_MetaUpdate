@@ -94,12 +94,12 @@ def extract_tar(arg):
 # Execute Order 66
 def update_database(arg):
     # Ask for the mount path
-    mount_path = input("\nEnter the path of your mount location: ")
+    mount_path = input("\nEnter the path of your mount location (E.g. /mnt/plexcloudservers/): ")
 
     # Confirm with the user if the path is correct
     print("The path is: " + mount_path)
     while not confirmation(pathMsg):
-        mount_path = input("\nEnter the path of your mount location: ")
+        mount_path = input("\nEnter the path of your mount location (E.g. /mnt/plexcloudservers/): ")
 
     # Check the mount path and make sure it ends with "/"
     correct_path = mount_path.endswith('/')
@@ -216,7 +216,7 @@ def main():
         update_database(pathlib.Path(customInstall))
 
         # Custom user:group
-        print("\nSetting custom ownership for the files, e.g chown user:user")
+        print("\nSetting custom ownership for the files, e.g. chown user:user")
         perm_user = input("\nEnter the user name: ")
         perm_group = input("Enter the group name: ")
         
