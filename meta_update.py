@@ -109,7 +109,7 @@ def update_database(arg):
 
     # Backup Database
     if mount_path(plexdb).exists():
-        os.rename(mount_path(plexdb), mount_path(plexdbBack))
+	    shutil.copy(mount_path(plexdb), mount_path(plexdbBack), *, follow_symlinks=True)
     print("\nCreating Backup of the Database.")
 
     print("\nUpdating the database to reflect the new mount path.")
