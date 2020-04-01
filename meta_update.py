@@ -30,6 +30,7 @@ cbInstall = pathlib.Path("/opt/plex/")
 customInstall = ""
 
 plexdb = ("Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db")
+plexdbBack = ("Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db.back")
 plexPref = ("Library/Application Support/Plex Media Server/Preferences.xml")
 plexPrefBack = ("Library/Application Support/Plex Media Server/Preferences.xml.back")
 
@@ -106,6 +107,11 @@ def update_database(arg):
     if not correct_path:
         mount_path = mount_path + "/"
 
+    # Backup Database
+    if mount_path(plexdb).exists():
+	    shutil.copy(mount_path(plexdb), mount_path(plexdbBack), *, follow_symlinks=True)
+    print("\nCreating Backup of the Database.")
+
     print("\nUpdating the database to reflect the new mount path.")
     connection = sqlite3.connect(arg.joinpath(plexdb))
     
@@ -128,6 +134,26 @@ def update_database(arg):
     
     print("Database is updated.")
 
+#Removing the database backup
+def remove_database_backup(arg):
+    # Ask for the mount path
+    mount_path = input("\nEnter the path of your mount location (E.g. /mnt/plexcloudservers/): ")
+
+    # Confirm with the user if the path is correct
+    print("The path is: " + mount_path)
+    while not confirmation(pathMsg):
+        mount_path = input("\nEnter the path of your mount location (E.g. /mnt/plexcloudservers/): ")
+
+    # Check the mount path and make sure it ends with "/"
+    correct_path = mount_path.endswith('/')
+    if not correct_path:
+        mount_path = mount_path + "/"
+
+    # Backup Database
+    if mount_path(plexdbBack).exists():
+        os.remove(mount_path(plexdbBack))
+    print("\nDeleting Backup of the Database.")
+	
 # Menu
 def make_menu():
     global installType
@@ -222,7 +248,11 @@ def main():
         
         # Fixing the ownership
         fix_ownership(customInstall, perm_user, perm_group)
-    
+		
+    elif installType == "DeleteDatabaseBackup": # Database Removal
+        if confirmation(extMsg):
+                # Remove Database Backup
+        remove_database_backup(mount_path)   
     else:
         sys.exit("\nWell then something went wrong here... Exiting")
 
