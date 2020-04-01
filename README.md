@@ -9,7 +9,6 @@ Requirements
 ---------------------------------
 - Python 3.7 or newer
     - Double check your python3 version `python3 --version`, if it's less than 3.7, update it to the latest version.
-    - python3-apt is also required.
 - plex.tar (If you want to use the backed-up metadata)
 	- Make sure that the file is in the same directory as the script.
 - pv `apt install pv`

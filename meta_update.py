@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import apt
 import os
 import pathlib
 import shutil
@@ -12,14 +11,6 @@ import sys
 if sys.version_info < (3, 7):
     sys.exit("You must use Python 3.7 or newer.")
 
-# Check if pv is installed
-cache = apt.Cache()
-cache.open()
-try:
-    cache["pv"].is_installed
-except Exception:
-    sys.exit("You must install pv, apt install pv.")
-
 # Installation type
 installType = ""
 
@@ -29,10 +20,10 @@ plexInstall = pathlib.Path("/var/lib/plexmediaserver/")
 cbInstall = pathlib.Path("/opt/plex/")
 customInstall = ""
 
-plexdb = ("Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db")
-plexdbBack = ("Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db.back")
-plexPref = ("Library/Application Support/Plex Media Server/Preferences.xml")
-plexPrefBack = ("Library/Application Support/Plex Media Server/Preferences.xml.back")
+plexdb = "Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db"
+plexdbBack = "Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db.back"
+plexPref = "Library/Application Support/Plex Media Server/Preferences.xml"
+plexPrefBack = "Library/Application Support/Plex Media Server/Preferences.xml.back"
 backupFile = "database_path.txt"
 
 metaTar = pathlib.Path("plex.tar")
@@ -150,8 +141,7 @@ def remove_database_backup():
         print("\nDeleting Backup of the Database.")
         os.remove(dbBackFile)
     else:
-        sys.exit("No backup file found (database_path.txt), exiting.")
-
+        sys.exit("\nNo backup file found (database_path.txt), exiting.")
 
 # Menu
 def make_menu():
