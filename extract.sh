@@ -9,7 +9,7 @@ while getopts "d:" opt; do
    esac
 done
 
-pv plex.tar | tar xf - --strip-components=2 -C $opt_destination
+pv plex_linux.tar | tar xf - --strip-components=2 -C $opt_destination
 
 end="$(date -u +%s)"
 tmin=$(( (end-start)/60 ))

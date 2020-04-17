@@ -26,7 +26,7 @@ plexPref = "Library/Application Support/Plex Media Server/Preferences.xml"
 plexPrefBack = "Library/Application Support/Plex Media Server/Preferences.xml.back"
 backupFile = "database_path.txt"
 
-metaTar = pathlib.Path("plex.tar")
+metaTar = pathlib.Path("plex_linux.tar")
 extMsg = "\nDo you want to extract the tar file? (Y/N): "
 pathMsg = "\nIs the path correct? (Y/N): "
 delMsg = "\nDo you want to delete the database backup? (Y/N):"
