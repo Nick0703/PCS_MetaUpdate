@@ -85,7 +85,7 @@ def extract_tar(arg):
     if arg.joinpath(plexPrefBack).exists():
         os.rename(arg.joinpath(plexPrefBack), arg.joinpath(plexPref))
 
-# Execute Order 66
+# Database Modification
 def update_database(arg):
     # Ask for the mount path
     mount_path = input("\nEnter the path of your mount location (E.g. /mnt/plexcloudservers/): ")
@@ -114,6 +114,12 @@ def update_database(arg):
 
     cursor = connection.cursor()
 
+    sql_command = "DROP TRIGGER fts4_metadata_titles_before_update_icu;"
+    cursor.execute(sql_command)
+
+    sql_command = "DROP TRIGGER fts4_metadata_titles_after_update_icu;"
+    cursor.execute(sql_command)
+
     sql_command = """UPDATE section_locations SET root_path= replace(root_path, "/mnt/unionfs/Media/", "{}") where root_path like "%/mnt/unionfs/Media/%";""".format(mount_path)
     cursor.execute(sql_command)
 
@@ -121,6 +127,12 @@ def update_database(arg):
     cursor.execute(sql_command)
 
     sql_command = """UPDATE media_parts SET file= replace(file, "/mnt/unionfs/Media/", "{}") where file like "%/mnt/unionfs/Media/%";""".format(mount_path)
+    cursor.execute(sql_command)
+
+    sql_command = "CREATE TRIGGER fts4_metadata_titles_before_update_icu BEFORE UPDATE ON metadata_items BEGIN DELETE FROM fts4_metadata_titles_icu WHERE docid=old.rowid; END;"
+    cursor.execute(sql_command)
+
+    sql_command = "CREATE TRIGGER fts4_metadata_titles_after_update_icu AFTER UPDATE ON metadata_items BEGIN INSERT INTO fts4_metadata_titles_icu(docid, title, title_sort, original_title) VALUES(new.rowid, new.title, new.title_sort, new.original_title); END;"
     cursor.execute(sql_command)
 
     # Commit the changess
@@ -210,21 +222,21 @@ def main():
         if confirmation(extMsg):
             extract_tar(pgbInstall)
 
-        # Execute Order 66
+        # Database Modification
         update_database(pgbInstall)
 
     elif installType == "cloudbox": # Cloudbox Installation
         if confirmation(extMsg):
             extract_tar(cbInstall)
 
-        # Execute Order 66
+        # Database Modification
         update_database(cbInstall)
 
     elif installType == "dpkg": # Normal Plex Installation
         if confirmation(extMsg):
             extract_tar(plexInstall)
 
-        # Execute Order 66
+        # Database Modification
         update_database(plexInstall)
 
         # Fix the ownership
@@ -234,7 +246,7 @@ def main():
         if confirmation(extMsg):
             extract_tar(pathlib.Path(customInstall))
 
-        # Execute Order 66
+        # Database Modification
         update_database(pathlib.Path(customInstall))
 
         # Custom user:group
