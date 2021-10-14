@@ -21,12 +21,15 @@ cbInstall = pathlib.Path("/opt/plex/")
 customInstall = ""
 
 plexdb = "Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db"
+plexdbBack = "Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db.back"
 plexPref = "Library/Application Support/Plex Media Server/Preferences.xml"
 plexPrefBack = "Library/Application Support/Plex Media Server/Preferences.xml.back"
+backupFile = "database_path.txt"
 
 metaTar = pathlib.Path("plex_linux.tar")
 extMsg = "\nDo you want to extract the tar file? (Y/N): "
 pathMsg = "\nIs the path correct? (Y/N): "
+delMsg = "\nDo you want to delete the database backup? (Y/N):"
 
 extractScript = pathlib.Path("extract.sh")
 fixOwnerScript = pathlib.Path("fix-owner.sh")
@@ -82,7 +85,7 @@ def extract_tar(arg):
     if arg.joinpath(plexPrefBack).exists():
         os.rename(arg.joinpath(plexPrefBack), arg.joinpath(plexPref))
 
-# Database Modification
+# Execute Order 66
 def update_database(arg):
     # Ask for the mount path
     mount_path = input("\nEnter the path of your mount location (E.g. /mnt/plexcloudservers/): ")
@@ -97,8 +100,18 @@ def update_database(arg):
     if not correct_path:
         mount_path = mount_path + "/"
 
+    # Backup Database
+    if arg.joinpath(plexdb).exists():
+        print("\nCreating Backup of the Database.")
+        shutil.copy2(arg.joinpath(plexdb), arg.joinpath(plexdbBack))
+        # Write the db path to a file for future reference
+        f = open(backupFile, "w")
+        f.write(str(arg.joinpath(plexdbBack)))
+        f.close()
+
     print("\nUpdating the database to reflect the new mount path.")
     connection = sqlite3.connect(arg.joinpath(plexdb))
+
     cursor = connection.cursor()
 
     sql_command = """UPDATE section_locations SET root_path= replace(root_path, "/mnt/unionfs/Media/", "{}") where root_path like "%/mnt/unionfs/Media/%";""".format(mount_path)
@@ -118,6 +131,18 @@ def update_database(arg):
 
     print("Database is updated.")
 
+# Removing the database backup
+def remove_database_backup():
+    if os.path.exists(backupFile):
+        f = open(backupFile, "r")
+        dbBackFile = f.read()
+        f.close()
+
+        print("\nDeleting Backup of the Database.")
+        os.remove(dbBackFile)
+    else:
+        sys.exit("\nNo backup file found (database_path.txt), exiting.")
+
 # Menu
 def make_menu():
     global installType
@@ -125,7 +150,7 @@ def make_menu():
     options = "0"
     while options == "0":
         print("Please select your installation type:\n")
-        print(" 1. PGBlitz\n 2. CloudBox\n 3. Plex Media Server .deb file (Standard Install)\n 4. Custom path (Docker Install)\n 5. Exit\n")
+        print(" 1. PGBlitz\n 2. CloudBox\n 3. Plex Media Server .deb file (Standard Install)\n 4. Custom path (Docker Install)\n 5. Remove database backup\n 6. Exit\n")
         options = input("Option (1-5): ")
 
         if options == "1":
@@ -162,6 +187,13 @@ def make_menu():
             installType = "custom"
 
         elif options == "5":
+            if os.geteuid() != 0:
+                print("Error! Please run the script as sudo.")
+                sys.exit()
+
+            installType = "DeleteDatabaseBackup"
+
+        elif options == "6":
             print("\nExiting")
             sys.exit()
 
@@ -178,21 +210,21 @@ def main():
         if confirmation(extMsg):
             extract_tar(pgbInstall)
 
-        # Database Modification
+        # Execute Order 66
         update_database(pgbInstall)
 
     elif installType == "cloudbox": # Cloudbox Installation
         if confirmation(extMsg):
             extract_tar(cbInstall)
 
-        # Database Modification
+        # Execute Order 66
         update_database(cbInstall)
 
     elif installType == "dpkg": # Normal Plex Installation
         if confirmation(extMsg):
             extract_tar(plexInstall)
 
-        # Database Modification
+        # Execute Order 66
         update_database(plexInstall)
 
         # Fix the ownership
@@ -202,7 +234,7 @@ def main():
         if confirmation(extMsg):
             extract_tar(pathlib.Path(customInstall))
 
-        # Database Modification
+        # Execute Order 66
         update_database(pathlib.Path(customInstall))
 
         # Custom user:group
@@ -212,6 +244,11 @@ def main():
 
         # Fixing the ownership
         fix_ownership(customInstall, perm_user, perm_group)
+
+    elif installType == "DeleteDatabaseBackup": # Database Removal
+        if confirmation(delMsg):
+            # Remove Database Backup
+            remove_database_backup()
 
     else:
         sys.exit("\nWell then something went wrong here... Exiting")
